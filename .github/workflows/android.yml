@@ -76,6 +76,7 @@ jobs:
 
       - name: Launch Metro bundler
         if: ${{ matrix.variant == 'debug' }}
+        working-directory: MyApp
         run: yarn start &
 
       - name: Build Android app
