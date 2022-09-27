@@ -17,7 +17,7 @@ jobs:
       fail-fast: false
       matrix:
         react-native-version: ['0.70.1']
-        variant: ['debug']
+        variant: ['debug', 'release']
     steps:
       - name: Checkout Git repository
         uses: actions/checkout@v3
