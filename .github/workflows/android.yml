@@ -1,0 +1,109 @@
+name: CI
+
+on:
+  push:
+    branches: ['master']
+  pull_request:
+    branches: ['master']
+  workflow_dispatch:
+
+jobs:
+  Android:
+    runs-on: macos-12
+    env:
+      api-level: 29
+      emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+    strategy:
+      fail-fast: false
+      matrix:
+        react-native-version: ['0.69.6', '0.70.1']
+        architecture: ['Paper', 'Fabric']
+        variant: ['debug', 'release']
+    steps:
+      - name: Checkout Git repository
+        uses: actions/checkout@v3
+
+      - name: Setup Java 11
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: 11
+
+      - name: Create React Native app
+        run: npx react-native init MyApp --version ${{ matrix.react-native-version }} --template react-native-template-typescript --skip-install
+
+      - name: Add Yarn dependencies
+        run: ./AddYarnDependencies.sh
+
+      - name: Add Yarn scripts
+        run: node ./AddYarnScripts.js
+
+      - name: Install node_modules
+        working-directory: MyApp
+        run: yarn
+
+      - name: Overwrite app files
+        run: ./OverwriteAppFiles.sh
+
+      - name: Enable Fabric
+        if: ${{ matrix.architecture == 'Fabric' }}
+        run: node ./EnableFabricAndroid.js
+
+      - name: Lint with Prettier
+        working-directory: MyApp
+        run: yarn lint:prettier
+
+      - name: Lint with ESLint
+        working-directory: MyApp
+        run: yarn lint:eslint
+
+      - name: Check types
+        working-directory: MyApp
+        run: yarn types:check
+
+      - name: Cache AVD
+        uses: actions/cache@v3
+        id: avd-cache
+        with:
+          path: |
+            ~/.android/avd/*
+            ~/.android/adb*
+          key: avd-api-${{ env.api-level }}
+
+      - name: Create AVD and generate snapshot for caching
+        if: steps.avd-cache.outputs.cache-hit != 'true'
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: ${{ env.api-level }}
+          force-avd-creation: false
+          emulator-options: ${{ env.emulator-options }}
+          script: echo "Generated AVD snapshot for caching."
+
+      - name: Launch Metro bundler
+        if: ${{ matrix.variant == 'debug' }}
+        working-directory: MyApp
+        run: yarn start &
+
+      - name: Build Android app
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: ${{ env.api-level }}
+          force-avd-creation: false
+          emulator-options: -no-snapshot-save ${{ env.emulator-options }}
+          script: cd MyApp && yarn build:android:${{ matrix.variant }}
+
+      - name: Run Appium server
+        working-directory: MyApp
+        run: |
+          yarn appium &
+          until $(curl --output /dev/null --silent --head --fail http://127.0.0.1:4723/wd/hub/sessions); do
+            sleep 5
+          done
+
+      - name: Run Android E2E tests
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: ${{ env.api-level }}
+          force-avd-creation: false
+          emulator-options: -no-snapshot-save ${{ env.emulator-options }}
+          script: cd MyApp && yarn test:e2e:android:${{ matrix.variant }}
