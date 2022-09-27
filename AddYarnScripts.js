@@ -6,7 +6,9 @@ let data = JSON.parse(fs.readFileSync(path));
 
 data.scripts = {
   start: "react-native start",
-  lint: "eslint . --ext .js,.jsx,.ts,.tsx",
+  "lint:eslint": "eslint . --ext .js,.jsx,.ts,.tsx --max-warnings=0",
+  "lint:prettier": "prettier screens App.tsx index.js --check",
+  "types:check": "yarn tsc --noEmit",
   "build:android:debug":
     "react-native run-android --variant=debug --active-arch-only",
   "build:android:release":

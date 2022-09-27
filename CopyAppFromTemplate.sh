@@ -1,1 +1,1 @@
-cp -R template MyApp
+cp -a template/. MyApp

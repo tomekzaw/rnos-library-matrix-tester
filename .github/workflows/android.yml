@@ -41,6 +41,18 @@ jobs:
       - name: Copy app from template
         run: ./CopyAppFromTemplate.sh
 
+      - name: Lint with Prettier
+        working-directory: MyApp
+        run: yarn lint:prettier
+
+      - name: Lint with ESLint
+        working-directory: MyApp
+        run: yarn lint:eslint
+
+      - name: Check types
+        working-directory: MyApp
+        run: yarn types:check
+
       - name: Launch Metro bundler
         if: ${{ matrix.variant == 'debug' }}
         run: yarn start &

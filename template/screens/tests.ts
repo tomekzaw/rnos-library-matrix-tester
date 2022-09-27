@@ -3,7 +3,6 @@ import {AnimateText} from './AnimateText';
 import {AnimateWidth} from './AnimateWidth';
 import {GestureHandlerDragDrop} from './GestureHandlerDragDrop';
 import {HelloWorld} from './HelloWorld';
-import {Reload} from './Reload';
 import {ScrollTo} from './ScrollTo';
 
 export const TESTS = [
@@ -13,5 +12,4 @@ export const TESTS = [
   {name: 'AnimateText', component: AnimateText},
   {name: 'ScrollTo', component: ScrollTo},
   {name: 'GestureHandlerDragDrop', component: GestureHandlerDragDrop},
-  {name: 'Reload', component: Reload},
 ];
