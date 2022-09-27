@@ -12,11 +12,11 @@ function getPlatform() {
 }
 
 function getRuntime() {
-  return 'HermesInternal' in global ? 'Hermes' : 'JSC'; // TODO: V8
+  return 'HermesInternal' in globalThis ? 'Hermes' : 'JSC'; // TODO: V8
 }
 
 function getArchitecture() {
-  return 'nativeFabricUIManager' in global ? 'Fabric' : 'Paper';
+  return 'nativeFabricUIManager' in globalThis ? 'Fabric' : 'Paper';
 }
 
 export function HelloWorld() {
