@@ -20,7 +20,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Create React Native app
-        run: npx react-native init MyApp --version ${{ matrix.react-native-version }} --template react-native-template-typescript
+        run: npx react-native init MyApp --version ${{ matrix.react-native-version }} --template react-native-template-typescript --skip-install
 
       - name: Install node_modules
         working-directory: MyApp
