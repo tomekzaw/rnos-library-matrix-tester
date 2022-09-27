@@ -1,0 +1,98 @@
+name: CI
+
+on:
+  push:
+    branches: ['master']
+  pull_request:
+    branches: ['master']
+  workflow_dispatch:
+
+jobs:
+  iOS:
+    runs-on: macos-12
+    strategy:
+      fail-fast: false
+      matrix:
+        react-native-version: ['0.70.1']
+        architecture: ['Paper', 'Fabric']
+        variant: ['debug', 'release']
+    steps:
+      - name: Checkout Git repository
+        uses: actions/checkout@v3
+
+      - name: Create React Native app
+        run: npx react-native init MyApp --version ${{ matrix.react-native-version }} --template react-native-template-typescript --skip-install
+
+      - name: Add Yarn dependencies
+        run: ./AddYarnDependencies.sh
+
+      - name: Add Yarn scripts
+        run: node ./AddYarnScripts.js
+
+      - name: Install node_modules
+        working-directory: MyApp
+        run: yarn
+
+      - name: Overwrite app files
+        run: ./OverwriteAppFiles.sh
+
+      - name: Lint with Prettier
+        working-directory: MyApp
+        run: yarn lint:prettier
+
+      - name: Lint with ESLint
+        working-directory: MyApp
+        run: yarn lint:eslint
+
+      - name: Check types
+        working-directory: MyApp
+        run: yarn types:check
+
+      - name: Install Pods
+        if: ${{ matrix.architecture == 'Paper' && matrix.variant == 'debug' }}
+        working-directory: MyApp/ios
+        run: pod install
+
+      - name: Install Pods
+        if: ${{ matrix.architecture == 'Paper' && matrix.variant == 'release' }}
+        working-directory: MyApp/ios
+        run: PRODUCTION=1 pod install
+
+      - name: Install Pods
+        if: ${{ matrix.architecture == 'Fabric' && matrix.variant == 'debug' }}
+        working-directory: MyApp/ios
+        run: RCT_NEW_ARCH_ENABLED=1 pod install
+
+      - name: Install Pods
+        if: ${{ matrix.architecture == 'Fabric' && matrix.variant == 'release' }}
+        working-directory: MyApp/ios
+        run: RCT_NEW_ARCH_ENABLED=1 PRODUCTION=1 pod install
+
+      - name: Launch Metro bundler
+        if: ${{ matrix.variant == 'debug' }}
+        working-directory: MyApp
+        run: yarn start &
+
+      - name: Build iOS app
+        working-directory: MyApp
+        run: yarn build:ios:${{ matrix.variant }} --simulator 'iPhone 13 (15.5)'
+
+      - name: Run Appium server
+        working-directory: MyApp
+        run: |
+          yarn appium &
+          until $(curl --output /dev/null --silent --head --fail http://127.0.0.1:4723/wd/hub/sessions); do
+            sleep 5
+          done
+
+      - name: Install WebDriverAgentRunner
+        working-directory: MyApp
+        run: |
+          cd ./node_modules/appium-webdriveragent &&
+          unzip -o WebDriverAgentRunner-Runner.app.zip -d WebDriverAgentRunner-Runner.app &&
+          xcrun simctl install "iPhone 13" WebDriverAgentRunner-Runner.app &&
+          xcrun simctl launch "iPhone 13" com.facebook.WebDriverAgentRunner.xctrunner
+
+      - name: Run iOS E2E tests
+        working-directory: MyApp
+        run: yarn test:e2e:ios:${{ matrix.variant }}
