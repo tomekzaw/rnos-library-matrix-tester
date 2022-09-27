@@ -10,6 +10,9 @@ on:
 jobs:
   Android:
     runs-on: macos-12
+    env:
+      api-level: 29
+      emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
     strategy:
       fail-fast: false
       matrix:
@@ -53,6 +56,48 @@ jobs:
         working-directory: MyApp
         run: yarn types:check
 
+      - name: Cache AVD
+        uses: actions/cache@v3
+        id: avd-cache
+        with:
+          path: |
+            ~/.android/avd/*
+            ~/.android/adb*
+          key: avd-api-${{ env.api-level }}-v10
+
+      - name: Create AVD and generate snapshot for caching
+        if: steps.avd-cache.outputs.cache-hit != 'true'
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: ${{ env.api-level }}
+          force-avd-creation: false
+          emulator-options: ${{ env.emulator-options }}
+          script: echo "Generated AVD snapshot for caching."
+
       - name: Launch Metro bundler
         if: ${{ matrix.variant == 'debug' }}
         run: yarn start &
+
+      - name: Build Android app
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: ${{ env.api-level }}
+          force-avd-creation: false
+          emulator-options: -no-snapshot-save ${{ env.emulator-options }}
+          script: cd MyApp && yarn build:android:${{ matrix.variant }}
+
+      - name: Run Appium server
+        working-directory: MyApp
+        run: |
+          yarn appium &
+          until $(curl --output /dev/null --silent --head --fail http://127.0.0.1:4723/wd/hub/sessions); do
+            sleep 5
+          done
+
+      - name: Run Android E2E tests
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: ${{ env.api-level }}
+          force-avd-creation: false
+          emulator-options: -no-snapshot-save ${{ env.emulator-options }}
+          script: cd MyApp && yarn test:e2e:android:${{ matrix.variant }}
