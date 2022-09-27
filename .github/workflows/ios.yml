@@ -13,9 +13,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        react-native-version: ['0.69.6', '0.70.1']
+        react-native-version: ['0.67.4', '0.68.3', '0.69.6', '0.70.1']
         architecture: ['Paper', 'Fabric']
         variant: ['debug', 'release']
+        exclude:
+          - react-native-version: '0.67.4'
+            architecture: 'Fabric'
+          - react-native-version: '0.68.3'
+            architecture: 'Fabric'
     steps:
       - name: Checkout Git repository
         uses: actions/checkout@v3
