@@ -16,9 +16,20 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        react-native-version: ['0.66.4', '0.65.2', '0.64.3', '0.63.4', '0.62.3']
-        architecture: ['Paper']
+        react-native-version: ['0.64.3', '0.65.2', '0.66.4', '0.67.4', '0.68.3', '0.69.6', '0.70.1']
+        architecture: ['Paper', 'Fabric']
         variant: ['debug', 'release']
+        exclude:
+          - react-native-version: '0.64.3'
+            architecture: 'Fabric'
+          - react-native-version: '0.65.2'
+            architecture: 'Fabric'
+          - react-native-version: '0.66.4'
+            architecture: 'Fabric'
+          - react-native-version: '0.67.4'
+            architecture: 'Fabric'
+          - react-native-version: '0.68.3'
+            architecture: 'Fabric'
     steps:
       - name: Checkout Git repository
         uses: actions/checkout@v3
@@ -30,13 +41,13 @@ jobs:
           java-version: 11
 
       - name: Create React Native app
-        run: npx react-native init MyApp --version ${{ matrix.react-native-version }} --template react-native-template-typescript --skip-install
+        run: npx react-native init MyApp --version ${{ matrix.react-native-version }} --skip-install
 
       - name: Add Yarn dependencies
         run: ./AddYarnDependencies.sh
 
-      - name: Add Yarn scripts
-        run: node ./AddYarnScripts.js
+      - name: Edit package.json
+        run: node ./EditPackageJson.js
 
       - name: Install node_modules
         working-directory: MyApp

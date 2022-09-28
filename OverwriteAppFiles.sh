@@ -1,1 +1,2 @@
-cp -a app/. MyApp && rm MyApp/__tests__/App-test.tsx
+cp -a app/. MyApp && cd MyApp && rm .flowconfig App.js __tests__/App-test.js
+

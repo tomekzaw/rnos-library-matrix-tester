@@ -23,4 +23,6 @@ data.scripts = {
   postinstall: "patch-package",
 };
 
+data.jest.moduleFileExtensions = ["ts", "tsx", "js", "jsx", "json", "node"];
+
 fs.writeFileSync(path, JSON.stringify(data, null, 2));
