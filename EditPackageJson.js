@@ -9,10 +9,9 @@ data.scripts = {
   "lint:eslint": "eslint . --ext .js,.jsx,.ts,.tsx --max-warnings=0",
   "lint:prettier": "prettier screens App.tsx index.js --check",
   "types:check": "tsc --noEmit",
-  "build:android:debug":
-    "react-native run-android --variant=debug --active-arch-only",
+  "build:android:debug": "react-native run-android --variant=debug",
   "build:android:release":
-    "react-native run-android --variant=release --active-arch-only --no-packager",
+    "react-native run-android --variant=release --no-packager",
   "build:ios:debug": "react-native run-ios --configuration Debug",
   "build:ios:release":
     "react-native run-ios --configuration Release --no-packager",
