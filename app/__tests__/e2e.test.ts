@@ -1,7 +1,10 @@
 import * as WebdriverIO from 'webdriverio';
 
-if (process.env.PLATFORM !== 'android' && process.env.PLATFORM !== 'ios') {
-  fail('`PLATFORM` must be either "android" or "ios".');
+if (
+  process.env.E2E_PLATFORM !== 'Android' &&
+  process.env.E2E_PLATFORM !== 'iOS'
+) {
+  throw new Error('`E2E_PLATFORM` must be either "Android" or "iOS".');
 }
 
 describe('Appium with Jest automation testing', () => {
@@ -16,16 +19,17 @@ describe('Appium with Jest automation testing', () => {
     const android = {
       platformName: 'Android',
       app:
-        process.env.VARIANT === 'debug'
+        process.env.E2E_MODE === 'debug'
           ? './android/app/build/outputs/apk/debug/app-debug.apk'
           : './android/app/build/outputs/apk/release/app-release.apk',
       automationName: 'UiAutomator2',
+      uiautomator2ServerInstallTimeout: 60_000,
     };
 
     const ios = {
       platformName: 'iOS',
-      deviceName: process.env.CI === 'true' ? 'iPhone 13' : 'iPhone 14 Pro Max',
-      platformVersion: process.env.CI === 'true' ? '15.5' : '16.0',
+      deviceName: process.env.E2E_IOS_SIMULATOR_NAME,
+      platformVersion: process.env.E2E_IOS_SIMULATOR_VERSION,
       bundleId: 'org.reactjs.native.example.MyApp',
       automationName: 'XCUITest',
     };
@@ -33,14 +37,14 @@ describe('Appium with Jest automation testing', () => {
     const opts = {
       path: '/wd/hub',
       port: 4723,
-      capabilities: process.env.PLATFORM === 'android' ? android : ios,
+      capabilities: process.env.E2E_PLATFORM === 'Android' ? android : ios,
     };
 
     client = await WebdriverIO.remote(opts);
     if (
       process.env.CI === 'true' &&
-      process.env.PLATFORM === 'ios' &&
-      process.env.VARIANT === 'release'
+      process.env.E2E_PLATFORM === 'ios' &&
+      process.env.E2E_MODE === 'release'
     ) {
       client = await WebdriverIO.remote(opts); // for some reason on CI it works on the second time
     }
@@ -50,13 +54,13 @@ describe('Appium with Jest automation testing', () => {
   }
 
   async function waitForApp() {
-    for (let i = 0; i < 30; i++) {
+    for (let i = 0; i < 60; i++) {
       const button = await client.$('~HelloWorld');
       try {
         await button.getText();
         return;
       } catch (e) {
-        await client.pause(5_000);
+        await client.pause(1000);
       }
     }
     fail('App is not launched');
@@ -89,6 +93,22 @@ describe('Appium with Jest automation testing', () => {
     expect(string).toBe('Hello world!');
   });
 
+  test('worklets', async () => {
+    await openTest('Worklets');
+
+    const text = await client.$('~text');
+    const button = await client.$('~button');
+
+    const before = await text.getText();
+    expect(before).toEqual('?');
+
+    await button.click();
+    await client.pause(500);
+
+    const after = await text.getText();
+    expect(after).toEqual('OK');
+  });
+
   test('animate background color', async () => {
     await openTest('AnimateBackgroundColor');
 
@@ -101,12 +121,8 @@ describe('Appium with Jest automation testing', () => {
 
     const after = await client.takeScreenshot();
 
-    if (process.env.CI === 'true' && process.env.PLATFORM === 'android') {
-      return; // for some reason screenshots on Android on CI have correct dimensions but are completely black
-    }
-
     // TODO: compare pixel colors
-    expect(before).not.toBe(after);
+    expect(after).not.toBe(before);
   });
 
   test('animate width', async () => {
@@ -135,18 +151,29 @@ describe('Appium with Jest automation testing', () => {
     const text = await client.$('~text');
     const button = await client.$('~button');
 
-    const before = await text.getText();
-    if (process.env.PLATFORM === 'ios' && before === '') {
-      // This doesn't work on Fabric, skip the test.
-      return;
-    }
-    expect(before).toEqual('0');
+    const before = await client.takeElementScreenshot(text.elementId);
+    // `text.getText()` always returns an empty string on Fabric, so we must compare screenshots
 
     await button.click();
-    await client.pause(1000);
+    await client.pause(2000);
 
-    const after = await text.getText();
-    expect(after).toEqual('100');
+    const after = await client.takeElementScreenshot(text.elementId);
+    expect(after).not.toEqual(before);
+  });
+
+  test('animate svg', async () => {
+    await openTest('AnimateSvg');
+
+    const svg = await client.$('~svg');
+    const button = await client.$('~button');
+
+    const before = await client.takeElementScreenshot(svg.elementId);
+
+    await button.click();
+    await client.pause(2000);
+
+    const after = await client.takeElementScreenshot(svg.elementId);
+    expect(after).not.toEqual(before);
   });
 
   test('scroll to', async () => {
@@ -189,4 +216,19 @@ describe('Appium with Jest automation testing', () => {
     const after = await ball.getLocation();
     expect(after.x).toEqual(200);
   });
+
+  if (process.env.E2E_MODE === 'debug') {
+    test('reload once', async () => {
+      await openTest('Reload');
+      await client.pause(process.env.CI === 'true' ? 10_000 : 1000);
+
+      const button = await client.$('~button');
+      await button.click(); // reload app
+      await client.pause(process.env.CI === 'true' ? 30_000 : 1000);
+      waitForApp();
+
+      await openTest('Reload');
+      await client.pause(process.env.CI === 'true' ? 10_000 : 1000);
+    });
+  }
 });

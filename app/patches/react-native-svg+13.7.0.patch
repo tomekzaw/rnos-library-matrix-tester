@@ -1,0 +1,21 @@
+diff --git a/node_modules/react-native-svg/apple/Elements/RNSVGImage.mm b/node_modules/react-native-svg/apple/Elements/RNSVGImage.mm
+index 5a3cb91..7a8d615 100644
+--- a/node_modules/react-native-svg/apple/Elements/RNSVGImage.mm
++++ b/node_modules/react-native-svg/apple/Elements/RNSVGImage.mm
+@@ -37,6 +37,8 @@
+ #import <rnsvg/RNSVGImageComponentDescriptor.h>
+ #import "RNSVGFabricConversions.h"
+ 
++using namespace facebook::react;
++
+ #endif // RN_FABRIC_ENABLED
+ 
+ @implementation RNSVGImage {
+@@ -50,7 +52,6 @@ @implementation RNSVGImage {
+ #endif // RN_FABRIC_ENABLED
+ }
+ #ifdef RN_FABRIC_ENABLED
+-using namespace facebook::react;
+ 
+ - (instancetype)initWithFrame:(CGRect)frame
+ {
