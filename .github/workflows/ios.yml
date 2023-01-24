@@ -73,7 +73,7 @@ jobs:
 
       - name: Build app
         run: ./BuildApp.sh
-        timeout-minutes: 40
+        timeout-minutes: 60
 
       - name: Install WebDriverAgentRunner
         run: ./InstallWebDriverAgentRunner.sh
