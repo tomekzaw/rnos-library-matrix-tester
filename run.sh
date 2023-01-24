@@ -13,10 +13,7 @@ export E2E_PLATFORM=iOS
 export E2E_IOS_SIMULATOR_NAME="iPhone 14 Pro"
 export E2E_IOS_SIMULATOR_VERSION=16.2
 export E2E_APP_NAME=MyApp
-
-# derived values, please don't edit
 export E2E_APP_PATH=$SCRIPT_DIR/$E2E_APP_NAME
-export E2E_REACT_NATIVE_MINOR_VERSION=$(cut -d '.' -f 2,2 <<< $E2E_REACT_NATIVE_VERSION)
 
 # workflow for local testing, feel free to comment out unnecessary tasks
 echo "Started" && cd $SCRIPT_DIR/cli && \

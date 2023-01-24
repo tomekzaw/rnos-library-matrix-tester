@@ -59,8 +59,3 @@ echo E2E_APP_PATH=$E2E_APP_PATH
 if [[ -z "$E2E_APP_PATH" ]]; then
     echo 'Missing $E2E_APP_PATH' && exit 1
 fi
-
-echo E2E_REACT_NATIVE_MINOR_VERSION=$E2E_REACT_NATIVE_MINOR_VERSION
-if [[ -z "$E2E_REACT_NATIVE_MINOR_VERSION" ]]; then
-    echo 'Missing $E2E_REACT_NATIVE_MINOR_VERSION' && exit 1
-fi

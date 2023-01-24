@@ -30,7 +30,6 @@ jobs:
       E2E_IOS_SIMULATOR_VERSION: 16.2
       E2E_APP_NAME: MyApp
       E2E_APP_PATH: ${{ github.workspace }}/MyApp
-      E2E_REACT_NATIVE_MINOR_VERSION: 71
     steps:
       - name: Checkout Git repository
         uses: actions/checkout@v3

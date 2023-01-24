@@ -10,11 +10,29 @@ if [ $E2E_PLATFORM == "iOS" ]; then
         yarn react-native run-ios --configuration Release --simulator "$E2E_IOS_SIMULATOR_NAME" --no-packager
     fi
 elif [ $E2E_PLATFORM == "Android" ]; then
-    # TODO: use --mode instead of --variant for 0.71+
     # TODO: use --active-arch-only in 0.68+
-    if [ $E2E_MODE == "debug" ]; then
-        yarn react-native run-android --variant=debug
-    elif [ $E2E_MODE == "release" ]; then
-        yarn react-native run-android --variant=release --no-packager
+    REACT_NATIVE_MINOR_VERSION=$(cut -d '.' -f 2,2 <<< $E2E_REACT_NATIVE_VERSION)
+
+    if [ $REACT_NATIVE_MINOR_VERSION -ge 71 ]; then
+        MODE_ARG_NAME=--mode
+    else
+        MODE_ARG_NAME=--variant
     fi
+
+    if [ $REACT_NATIVE_MINOR_VERSION -ge 68 ]; then
+        ACTIVE_ARCH_ONLY_FLAG=--active-arch-only
+    else
+        ACTIVE_ARCH_ONLY_FLAG=
+    fi
+
+    if [ $E2E_MODE == "release" ]; then
+        NO_PACKAGER_FLAG=--no-packager
+    else
+        NO_PACKAGER_FLAG=
+    fi
+
+    echo "yarn react-native run-android \
+        $MODE_ARG_NAME=$E2E_MODE \
+        $NO_PACKAGER_FLAG \
+        $ACTIVE_ARCH_ONLY_FLAG"
 fi
