@@ -20,17 +20,15 @@ jobs:
         # exclude:
         #   - react-native-version: '0.68.4'
         #     architecture: 'Fabric'
+    env:
+      E2E_REACT_NATIVE_VERSION: ${{ matrix.react-native-version }}
+      E2E_ARCHITECTURE: ${{ matrix.architecture }}
+      E2E_RUNTIME: ${{ matrix.runtime }}
+      E2E_MODE: ${{ matrix.mode }}
+      E2E_PLATFORM: iOS
     steps:
       - name: Checkout Git repository
         uses: actions/checkout@v3
-
-      - name: Write config
-        run: |
-          export E2E_REACT_NATIVE_VERSION=${{ matrix.react-native-version }}
-          export E2E_ARCHITECTURE=${{ matrix.architecture }}
-          export E2E_RUNTIME=${{ matrix.runtime }}
-          export E2E_MODE=${{ matrix.mode }}
-          export E2E_PLATFORM=iOS
 
       - name: Validate config
         run: ./ValidateConfig.sh
