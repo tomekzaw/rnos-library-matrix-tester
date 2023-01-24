@@ -1,120 +1,105 @@
-# name: CI
+name: CI
 
-# on:
-#   push:
-#     branches: ['master']
-#   pull_request:
-#     branches: ['master']
-#   workflow_dispatch:
+on:
+  push:
+    branches: ['master']
+  pull_request:
+    branches: ['master']
+  workflow_dispatch:
 
-# jobs:
-#   Android:
-#     runs-on: macos-12
-#     env:
-#       api-level: 29
-#       emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
-#     strategy:
-#       fail-fast: false
-#       matrix:
-#         react-native-version: ['0.64.3', '0.65.2', '0.66.4', '0.67.4', '0.68.4', '0.69.6', '0.70.3']
-#         architecture: ['Paper', 'Fabric']
-#         variant: ['debug', 'release']
-#         exclude:
-#           - react-native-version: '0.64.3'
-#             architecture: 'Fabric'
-#           - react-native-version: '0.65.2'
-#             architecture: 'Fabric'
-#           - react-native-version: '0.66.4'
-#             architecture: 'Fabric'
-#           - react-native-version: '0.67.4'
-#             architecture: 'Fabric'
-#           - react-native-version: '0.68.4'
-#             architecture: 'Fabric'
-#     steps:
-#       - name: Checkout Git repository
-#         uses: actions/checkout@v3
+jobs:
+  Android:
+    runs-on: macos-12
+    strategy:
+      fail-fast: false
+      matrix:
+        react-native-version: ['0.71.1']
+        architecture: ['Paper', 'Fabric']
+        runtime: ['JSC', 'Hermes']
+        mode: ['debug', 'release']
+        # exclude:
+        #   - react-native-version: '0.68.4'
+        #     architecture: 'Fabric'
+    env:
+      E2E_REACT_NATIVE_VERSION: ${{ matrix.react-native-version }}
+      E2E_ARCHITECTURE: ${{ matrix.architecture }}
+      E2E_RUNTIME: ${{ matrix.runtime }}
+      E2E_MODE: ${{ matrix.mode }}
+      E2E_PLATFORM: Android
+      E2E_APP_NAME: MyApp
+      E2E_APP_PATH: ${{ github.workspace }}/MyApp
+      E2E_REACT_NATIVE_MINOR_VERSION: 71
+    steps:
+      - name: Checkout Git repository
+        uses: actions/checkout@v3
 
-#       - name: Setup Java 11
-#         uses: actions/setup-java@v3
-#         with:
-#           distribution: 'zulu'
-#           java-version: 11
+      - name: Validate config
+        run: ./ValidateConfig.sh
 
-#       - name: Create React Native app
-#         run: npx react-native init MyApp --version ${{ matrix.react-native-version }} --skip-install
+      - name: Create React Native app
+        run: ./CreateApp.sh
 
-#       - name: Add Yarn dependencies
-#         run: ./AddYarnDependencies.sh
+      - name: Copy app files
+        run: ./CopyAppFiles.sh
 
-#       - name: Edit package.json
-#         run: node ./EditPackageJson.js
+      - name: Edit package.json
+        run: ./EditPackageJson.sh
 
-#       - name: Install node_modules
-#         working-directory: MyApp
-#         run: yarn
+      - name: Install Yarn dependencies
+        run: ./InstallYarnDependencies.sh
 
-#       - name: Overwrite app files
-#         run: ./OverwriteAppFiles.sh
+      - name: Lint with Prettier
+        run: ./LintWithPrettier.sh
 
-#       - name: Enable Fabric
-#         if: ${{ matrix.architecture == 'Fabric' }}
-#         run: node ./EnableFabricAndroid.js
+      - name: Lint with ESLint
+        run: ./LintWithESLint.sh
 
-#       - name: Lint with Prettier
-#         working-directory: MyApp
-#         run: yarn lint:prettier
+      - name: Check types
+        run: ./CheckTypes.sh
 
-#       - name: Lint with ESLint
-#         working-directory: MyApp
-#         run: yarn lint:eslint
+      - name: Select architecture
+        run: ./SelectArchitecture.sh
 
-#       - name: Check types
-#         working-directory: MyApp
-#         run: yarn types:check
+      - name: Select runtime
+        run: ./SelectRuntime.sh
 
-#       - name: Cache AVD
-#         uses: actions/cache@v3
-#         id: avd-cache
-#         with:
-#           path: |
-#             ~/.android/avd/*
-#             ~/.android/adb*
-#           key: avd-api-${{ env.api-level }}
+      - name: Setup Java 11
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: 11
 
-#       - name: Create AVD and generate snapshot for caching
-#         if: steps.avd-cache.outputs.cache-hit != 'true'
-#         uses: reactivecircus/android-emulator-runner@v2
-#         with:
-#           api-level: ${{ env.api-level }}
-#           force-avd-creation: false
-#           emulator-options: ${{ env.emulator-options }}
-#           script: echo "Generated AVD snapshot for caching."
+      - name: Create Android emulator
+        timeout-minutes: 10
+        run: |
+          # brew install intel-haxm
+          # Install AVD files
+          echo "y" | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install 'system-images;android-27;default;x86_64'
+          echo "y" | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
+          
+          # Create emulator
+          $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager create avd -n Pixel_API_29_AOSP -d pixel --package 'system-images;android-27;default;x86_64'
+          $ANDROID_HOME/emulator/emulator -list-avds
+          
+      - name: Start Android emulator
+        timeout-minutes: 10
+        run: |
+          echo "Starting emulator and waiting for boot to complete...."
+          ls -la $ANDROID_HOME/emulator
+          nohup $ANDROID_HOME/tools/emulator -avd Pixel_API_29_AOSP -gpu host -no-audio -no-boot-anim -camera-back none -camera-front none -qemu -m 2048 2>&1 &
+          $ANDROID_HOME/platform-tools/adb wait-for-device shell 'while [[ -z $(getprop sys.boot_completed | tr -d '\r') ]]; do echo "wait..."; sleep 1; done; input keyevent 82'
+          echo "Emulator has finished booting"
+          $ANDROID_HOME/platform-tools/adb devices
+          sleep 30
 
-#       - name: Launch Metro bundler
-#         if: ${{ matrix.variant == 'debug' }}
-#         working-directory: MyApp
-#         run: yarn start &
+      - name: Launch Metro bundler
+        run: ./LaunchMetroBundler.sh
 
-#       - name: Build Android app
-#         uses: reactivecircus/android-emulator-runner@v2
-#         with:
-#           api-level: ${{ env.api-level }}
-#           force-avd-creation: false
-#           emulator-options: -no-snapshot-save ${{ env.emulator-options }}
-#           script: cd MyApp && yarn build:android:${{ matrix.variant }}
+      - name: Launch Appium server
+        run: ./LaunchAppiumServer.sh
 
-#       - name: Run Appium server
-#         working-directory: MyApp
-#         run: |
-#           yarn appium &
-#           until $(curl --output /dev/null --silent --head --fail http://127.0.0.1:4723/wd/hub/sessions); do
-#             sleep 5
-#           done
+      - name: Build app
+        run: ./BuildApp.sh
 
-#       - name: Run Android E2E tests
-#         uses: reactivecircus/android-emulator-runner@v2
-#         with:
-#           api-level: ${{ env.api-level }}
-#           force-avd-creation: false
-#           emulator-options: -no-snapshot-save ${{ env.emulator-options }}
-#           script: cd MyApp && yarn test:e2e:android:${{ matrix.variant }}
+      - name: Run E2E tests
+        run: ./RunTests.sh

@@ -11,6 +11,7 @@ if [ $E2E_PLATFORM == "iOS" ]; then
     fi
 elif [ $E2E_PLATFORM == "Android" ]; then
     # TODO: use --mode instead of --variant for 0.71+
+    # TODO: use --active-arch-only in 0.68+
     if [ $E2E_MODE == "debug" ]; then
         yarn react-native run-android --variant=debug
     elif [ $E2E_MODE == "release" ]; then
