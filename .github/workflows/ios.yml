@@ -46,6 +46,9 @@ jobs:
       - name: Create React Native app
         run: ./CreateApp.sh
 
+      - name: Copy app files
+        run: ./CopyAppFiles.sh
+
       - name: Edit package.json
         run: ./EditPackageJson.sh
 
