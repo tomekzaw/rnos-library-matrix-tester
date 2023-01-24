@@ -35,11 +35,6 @@ jobs:
       - name: Checkout Git repository
         uses: actions/checkout@v3
 
-      - name: Write config
-        run: |
-          set E2E_APP_PATH=$SCRIPT_DIR/$E2E_APP_NAME
-          export E2E_REACT_NATIVE_MINOR_VERSION=$(cut -d '.' -f 2,2 <<< $E2E_REACT_NATIVE_VERSION)
-
       - name: Validate config
         run: ./ValidateConfig.sh
 
