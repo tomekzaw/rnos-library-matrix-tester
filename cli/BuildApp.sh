@@ -31,8 +31,8 @@ elif [ $E2E_PLATFORM == "Android" ]; then
         NO_PACKAGER_FLAG=
     fi
 
-    echo "yarn react-native run-android \
+    yarn react-native run-android \
         $MODE_ARG_NAME=$E2E_MODE \
         $NO_PACKAGER_FLAG \
-        $ACTIVE_ARCH_ONLY_FLAG"
+        $ACTIVE_ARCH_ONLY_FLAG
 fi
