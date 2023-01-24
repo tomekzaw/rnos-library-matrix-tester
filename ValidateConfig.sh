@@ -43,14 +43,16 @@ if [[ -z "$E2E_APP_NAME" ]]; then
     echo 'Missing $E2E_APP_NAME' && exit 1
 fi
 
-echo E2E_IOS_SIMULATOR_NAME=$E2E_IOS_SIMULATOR_NAME
-if [[ -z "$E2E_IOS_SIMULATOR_NAME" ]]; then
-    echo 'Missing $E2E_IOS_SIMULATOR_NAME' && exit 1
-fi
+if [[ $E2E_PLATFORM == "iOS" ]]; then
+    echo E2E_IOS_SIMULATOR_NAME=$E2E_IOS_SIMULATOR_NAME
+    if [[ -z "$E2E_IOS_SIMULATOR_NAME" ]]; then
+        echo 'Missing $E2E_IOS_SIMULATOR_NAME' && exit 1
+    fi
 
-echo E2E_IOS_SIMULATOR_VERSION=$E2E_IOS_SIMULATOR_VERSION
-if [[ -z "$E2E_IOS_SIMULATOR_VERSION" ]]; then
-    echo 'Missing $E2E_IOS_SIMULATOR_VERSION' && exit 1
+    echo E2E_IOS_SIMULATOR_VERSION=$E2E_IOS_SIMULATOR_VERSION
+    if [[ -z "$E2E_IOS_SIMULATOR_VERSION" ]]; then
+        echo 'Missing $E2E_IOS_SIMULATOR_VERSION' && exit 1
+    fi
 fi
 
 echo E2E_APP_PATH=$E2E_APP_PATH
