@@ -34,36 +34,36 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Validate config
-        run: ./ValidateConfig.sh
+        run: ./cli/ValidateConfig.sh
 
       - name: Create React Native app
-        run: ./CreateApp.sh
+        run: ./cli/CreateApp.sh
         timeout-minutes: 5
 
       - name: Copy app files
-        run: ./CopyAppFiles.sh
+        run: ./cli/CopyAppFiles.sh
 
       - name: Edit package.json
-        run: ./EditPackageJson.sh
+        run: ./cli/EditPackageJson.sh
 
       - name: Install Yarn dependencies
-        run: ./InstallYarnDependencies.sh
+        run: ./cli/InstallYarnDependencies.sh
         timeout-minutes: 10
 
       - name: Lint with Prettier
-        run: ./LintWithPrettier.sh
+        run: ./cli/LintWithPrettier.sh
 
       - name: Lint with ESLint
-        run: ./LintWithESLint.sh
+        run: ./cli/LintWithESLint.sh
 
       - name: Check types
-        run: ./CheckTypes.sh
+        run: ./cli/CheckTypes.sh
 
       - name: Select architecture
-        run: ./SelectArchitecture.sh
+        run: ./cli/SelectArchitecture.sh
 
       - name: Select runtime
-        run: ./SelectRuntime.sh
+        run: ./cli/SelectRuntime.sh
 
       - name: Setup Java 11
         uses: actions/setup-java@v3
@@ -95,15 +95,15 @@ jobs:
           sleep 30
 
       - name: Launch Metro bundler
-        run: ./LaunchMetroBundler.sh
+        run: ./cli/LaunchMetroBundler.sh
 
       - name: Launch Appium server
-        run: ./LaunchAppiumServer.sh
+        run: ./cli/LaunchAppiumServer.sh
 
       - name: Build app
-        run: ./BuildApp.sh
+        run: ./cli/BuildApp.sh
         timeout-minutes: 40
 
       - name: Run E2E tests
-        run: ./RunTests.sh
+        run: ./cli/RunTests.sh
         timeout-minutes: 15
