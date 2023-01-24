@@ -2,21 +2,24 @@
 set -u
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
-# default config for local testing, feel free to tweak these parameters
+# matrix parameters, feel free to tweak these values for local testing
 export E2E_REACT_NATIVE_VERSION=0.71.1
 export E2E_ARCHITECTURE=Paper
 export E2E_RUNTIME=Hermes
 export E2E_MODE=debug
 export E2E_PLATFORM=iOS
 
-# config, please don't change unless there is some error 
+# app and simulator config, please don't change unless something doesn't work
 export E2E_APP_NAME=MyApp
-export E2E_APP_PATH=$SCRIPT_DIR/$E2E_APP_NAME
 export E2E_IOS_SIMULATOR_NAME="iPhone 14 Pro"
 export E2E_IOS_SIMULATOR_VERSION=16.2
 
+# derived values, please don't edit
+export E2E_APP_PATH=$SCRIPT_DIR/$E2E_APP_NAME
+export E2E_REACT_NATIVE_MINOR_VERSION=$(cut -d '.' -f 2,2 <<< $E2E_REACT_NATIVE_VERSION)
+
 # workflow for local testing, feel free to comment out unnecessary tasks
-echo "Starting..." && \
+echo "Started" && \
     ./ValidateConfig.sh && \
     ./RemoveApp.sh && \
     ./CreateApp.sh && \

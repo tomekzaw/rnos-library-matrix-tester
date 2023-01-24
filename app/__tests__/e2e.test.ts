@@ -30,7 +30,7 @@ describe('Appium with Jest automation testing', () => {
       platformName: 'iOS',
       deviceName: process.env.E2E_IOS_SIMULATOR_NAME,
       platformVersion: process.env.E2E_IOS_SIMULATOR_VERSION,
-      bundleId: 'org.reactjs.native.example.MyApp',
+      bundleId: 'org.reactjs.native.example.' + process.env.E2E_APP_NAME,
       automationName: 'XCUITest',
     };
 
