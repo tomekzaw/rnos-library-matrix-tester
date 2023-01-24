@@ -8,12 +8,13 @@ on:
   workflow_dispatch:
 
 jobs:
-  Android:
+  E2E:
     runs-on: macos-12
     timeout-minutes: 90
     strategy:
       fail-fast: false
       matrix:
+        platform: ['Android', 'iOS']
         react-native-version: ['0.71.1']
         architecture: ['Paper', 'Fabric']
         runtime: ['JSC', 'Hermes']
@@ -26,7 +27,9 @@ jobs:
       E2E_ARCHITECTURE: ${{ matrix.architecture }}
       E2E_RUNTIME: ${{ matrix.runtime }}
       E2E_MODE: ${{ matrix.mode }}
-      E2E_PLATFORM: Android
+      E2E_PLATFORM: ${{ matrix.platform }}
+      E2E_IOS_SIMULATOR_NAME: iPhone 14 Pro
+      E2E_IOS_SIMULATOR_VERSION: 16.2
       E2E_APP_NAME: MyApp
       E2E_APP_PATH: ${{ github.workspace }}/MyApp
     steps:
@@ -60,18 +63,27 @@ jobs:
         run: ./cli/CheckTypes.sh
 
       - name: Select architecture
+        if: ${{ matrix.platform == 'Android' }}
         run: ./cli/SelectArchitecture.sh
 
       - name: Select runtime
+        if: ${{ matrix.platform == 'Android' }}
         run: ./cli/SelectRuntime.sh
 
+      - name: Install Pods
+        if: ${{ matrix.platform == 'iOS' }}
+        run: ./cli/InstallPods.sh
+        timeout-minutes: 15
+
       - name: Setup Java 11
+        if: ${{ matrix.platform == 'Android' }}
         uses: actions/setup-java@v3
         with:
           distribution: 'zulu'
           java-version: 11
 
       - name: Create Android emulator
+        if: ${{ matrix.platform == 'Android' }}
         timeout-minutes: 10
         run: |
           # brew install intel-haxm
@@ -84,6 +96,7 @@ jobs:
           $ANDROID_HOME/emulator/emulator -list-avds
           
       - name: Start Android emulator
+        if: ${{ matrix.platform == 'Android' }}
         timeout-minutes: 10
         run: |
           echo "Starting emulator and waiting for boot to complete...."
@@ -102,7 +115,11 @@ jobs:
 
       - name: Build app
         run: ./cli/BuildApp.sh
-        timeout-minutes: 40
+        timeout-minutes: 60
+
+      - name: Install WebDriverAgentRunner
+        if: ${{ matrix.platform == 'iOS' }}
+        run: ./cli/InstallWebDriverAgentRunner.sh
 
       - name: Run E2E tests
         run: ./cli/RunTests.sh
