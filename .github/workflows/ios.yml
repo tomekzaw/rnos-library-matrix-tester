@@ -1,78 +1,83 @@
-# name: CI
+name: CI
 
-# on:
-#   push:
-#     branches: ['master']
-#   pull_request:
-#     branches: ['master']
-#   workflow_dispatch:
+on:
+  push:
+    branches: ['master']
+  pull_request:
+    branches: ['master']
+  workflow_dispatch:
 
-# jobs:
-#   iOS:
-#     runs-on: macos-12
-#     strategy:
-#       fail-fast: false
-#       matrix:
-#         react-native-version: ['0.71.1']
-#         architecture: ['Paper', 'Fabric']
-#         runtime: ['JSC', 'Hermes']
-#         mode: ['debug', 'release']
-#         # exclude:
-#         #   - react-native-version: '0.68.4'
-#         #     architecture: 'Fabric'
-#     env:
-#       E2E_REACT_NATIVE_VERSION: ${{ matrix.react-native-version }}
-#       E2E_ARCHITECTURE: ${{ matrix.architecture }}
-#       E2E_RUNTIME: ${{ matrix.runtime }}
-#       E2E_MODE: ${{ matrix.mode }}
-#       E2E_PLATFORM: iOS
-#       E2E_IOS_SIMULATOR_NAME: iPhone 14 Pro
-#       E2E_IOS_SIMULATOR_VERSION: 16.2
-#       E2E_APP_NAME: MyApp
-#       E2E_APP_PATH: ${{ github.workspace }}/MyApp
-#       E2E_REACT_NATIVE_MINOR_VERSION: 71
-#     steps:
-#       - name: Checkout Git repository
-#         uses: actions/checkout@v3
+jobs:
+  iOS:
+    runs-on: macos-12
+    strategy:
+      fail-fast: false
+      matrix:
+        react-native-version: ['0.71.1']
+        architecture: ['Paper', 'Fabric']
+        runtime: ['JSC', 'Hermes']
+        mode: ['debug', 'release']
+        # exclude:
+        #   - react-native-version: '0.68.4'
+        #     architecture: 'Fabric'
+    env:
+      E2E_REACT_NATIVE_VERSION: ${{ matrix.react-native-version }}
+      E2E_ARCHITECTURE: ${{ matrix.architecture }}
+      E2E_RUNTIME: ${{ matrix.runtime }}
+      E2E_MODE: ${{ matrix.mode }}
+      E2E_PLATFORM: iOS
+      E2E_IOS_SIMULATOR_NAME: iPhone 14 Pro
+      E2E_IOS_SIMULATOR_VERSION: 16.2
+      E2E_APP_NAME: MyApp
+      E2E_APP_PATH: ${{ github.workspace }}/MyApp
+      E2E_REACT_NATIVE_MINOR_VERSION: 71
+    steps:
+      - name: Checkout Git repository
+        uses: actions/checkout@v3
 
-#       - name: Validate config
-#         run: ./ValidateConfig.sh
+      - name: Validate config
+        run: ./ValidateConfig.sh
 
-#       - name: Create React Native app
-#         run: ./CreateApp.sh
+      - name: Create React Native app
+        run: ./CreateApp.sh
+        timeout-minutes: 5
 
-#       - name: Copy app files
-#         run: ./CopyAppFiles.sh
+      - name: Copy app files
+        run: ./CopyAppFiles.sh
 
-#       - name: Edit package.json
-#         run: ./EditPackageJson.sh
+      - name: Edit package.json
+        run: ./EditPackageJson.sh
 
-#       - name: Install Yarn dependencies
-#         run: ./InstallYarnDependencies.sh
+      - name: Install Yarn dependencies
+        run: ./InstallYarnDependencies.sh
+        timeout-minutes: 10
 
-#       - name: Lint with Prettier
-#         run: ./LintWithPrettier.sh
+      - name: Lint with Prettier
+        run: ./LintWithPrettier.sh
 
-#       - name: Lint with ESLint
-#         run: ./LintWithESLint.sh
+      - name: Lint with ESLint
+        run: ./LintWithESLint.sh
 
-#       - name: Check types
-#         run: ./CheckTypes.sh
+      - name: Check types
+        run: ./CheckTypes.sh
 
-#       - name: Install Pods
-#         run: ./InstallPods.sh
+      - name: Install Pods
+        run: ./InstallPods.sh
+        timeout-minutes: 15
 
-#       - name: Launch Metro bundler
-#         run: ./LaunchMetroBundler.sh
+      - name: Launch Metro bundler
+        run: ./LaunchMetroBundler.sh
 
-#       - name: Launch Appium server
-#         run: ./LaunchAppiumServer.sh
+      - name: Launch Appium server
+        run: ./LaunchAppiumServer.sh
 
-#       - name: Build app
-#         run: ./BuildApp.sh
+      - name: Build app
+        run: ./BuildApp.sh
+        timeout-minutes: 40
 
-#       - name: Install WebDriverAgentRunner
-#         run: ./InstallWebDriverAgentRunner.sh
+      - name: Install WebDriverAgentRunner
+        run: ./InstallWebDriverAgentRunner.sh
 
-#       - name: Run E2E tests
-#         run: ./RunTests.sh
+      - name: Run E2E tests
+        run: ./RunTests.sh
+        timeout-minutes: 15

@@ -10,6 +10,7 @@ on:
 jobs:
   Android:
     runs-on: macos-12
+    timeout-minutes: 90
     strategy:
       fail-fast: false
       matrix:
@@ -38,6 +39,7 @@ jobs:
 
       - name: Create React Native app
         run: ./CreateApp.sh
+        timeout-minutes: 5
 
       - name: Copy app files
         run: ./CopyAppFiles.sh
@@ -47,6 +49,7 @@ jobs:
 
       - name: Install Yarn dependencies
         run: ./InstallYarnDependencies.sh
+        timeout-minutes: 10
 
       - name: Lint with Prettier
         run: ./LintWithPrettier.sh
@@ -100,6 +103,8 @@ jobs:
 
       - name: Build app
         run: ./BuildApp.sh
+        timeout-minutes: 40
 
       - name: Run E2E tests
         run: ./RunTests.sh
+        timeout-minutes: 15
