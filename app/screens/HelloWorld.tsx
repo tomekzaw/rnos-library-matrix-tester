@@ -10,12 +10,15 @@ import {testProps} from '../utils';
 
 function getPlatform() {
   // @ts-ignore
-  const os = Platform.constants.systemName || Platform.constants.Brand;
-  return `${os} ${Platform.Version}`;
+  return Platform.constants.systemName || Platform.constants.Brand;
+}
+
+function getPlatformVersion() {
+  return Platform.Version;
 }
 
 function getMode() {
-  return __DEV__ ? 'Debug' : 'Release';
+  return __DEV__ ? 'debug' : 'release';
 }
 
 function getRuntime() {
@@ -30,15 +33,33 @@ export function HelloWorld() {
   return (
     <>
       <Text {...testProps('text')}>Hello world!</Text>
-      <Text>React Native version: {reactNativeVersion}</Text>
-      <Text>Reanimated version: {reactNativeReanimatedVersion}</Text>
-      <Text>Gesture Handler version: {reactNativeGestureHandlerVersion}</Text>
-      <Text>Screens version: {reactNativeScreensVersion}</Text>
-      <Text>SVG version: {reactNativeSvgVersion}</Text>
-      <Text>Platform: {getPlatform()}</Text>
-      <Text>Mode: {getMode()}</Text>
-      <Text>Architecture: {getArchitecture()}</Text>
-      <Text>Runtime: {getRuntime()}</Text>
+      <Text>React Native version:</Text>
+      <Text {...testProps('reactNativeVersion')}>{reactNativeVersion}</Text>
+      <Text>Reanimated version: </Text>
+      <Text {...testProps('reactNativeReanimatedVersion')}>
+        {reactNativeReanimatedVersion}
+      </Text>
+      <Text>Gesture Handler version: </Text>
+      <Text {...testProps('reactNativeGestureHandlerVersion')}>
+        {reactNativeGestureHandlerVersion}
+      </Text>
+      <Text>Screens version: </Text>
+      <Text {...testProps('reactNativeScreensVersion')}>
+        {reactNativeScreensVersion}
+      </Text>
+      <Text>SVG version: </Text>
+      <Text {...testProps('reactNativeSvgVersion')}>
+        {reactNativeSvgVersion}
+      </Text>
+      <Text>Platform:</Text>
+      <Text {...testProps('platform')}>{getPlatform()}</Text>
+      <Text>{getPlatformVersion()}</Text>
+      <Text>Mode: </Text>
+      <Text {...testProps('mode')}>{getMode()}</Text>
+      <Text>Architecture:</Text>
+      <Text {...testProps('architecture')}>{getArchitecture()}</Text>
+      <Text>Runtime:</Text>
+      <Text {...testProps('runtime')}>{getRuntime()}</Text>
     </>
   );
 }

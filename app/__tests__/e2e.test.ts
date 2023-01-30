@@ -88,9 +88,22 @@ describe('Appium with Jest automation testing', () => {
   test('hello world', async () => {
     await openTest('HelloWorld');
 
-    const text = await client.$('~text');
-    const string = await text.getText();
-    expect(string).toBe('Hello world!');
+    async function expectTextToBe(id: string, expected: string | undefined) {
+      const text = await client.$(id);
+      const string = await text.getText();
+      expect(expected).toBeDefined();
+      expect(string).toBe(expected);
+    }
+
+    await expectTextToBe('~text', 'Hello world!');
+    await expectTextToBe(
+      '~reactNativeVersion',
+      process.env.E2E_REACT_NATIVE_VERSION,
+    );
+    await expectTextToBe('~platform', process.env.E2E_PLATFORM);
+    await expectTextToBe('~mode', process.env.E2E_MODE);
+    await expectTextToBe('~architecture', process.env.E2E_ARCHITECTURE);
+    await expectTextToBe('~runtime', process.env.E2E_RUNTIME);
   });
 
   test('worklets', async () => {
