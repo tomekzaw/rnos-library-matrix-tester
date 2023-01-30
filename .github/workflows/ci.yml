@@ -14,7 +14,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: ['iOS']
+        platform: ['Android']
         react-native-version: ['0.64.4', '0.65.3', '0.66.5', '0.67.5', '0.68.5', '0.69.7', '0.70.6']
         architecture: ['Paper']
         runtime: ['JSC', 'Hermes']
