@@ -67,7 +67,6 @@ jobs:
         run: ./cli/SelectArchitecture.sh
 
       - name: Select runtime
-        if: ${{ matrix.platform == 'Android' }}
         run: ./cli/SelectRuntime.sh
 
       - name: Install Pods
