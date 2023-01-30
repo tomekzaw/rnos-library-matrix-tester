@@ -6,11 +6,13 @@ const REACT_NATIVE_MINOR_VERSION = Number(
   process.env.E2E_REACT_NATIVE_VERSION.split(".")[1]
 );
 
-const path = process.env.E2E_PLATFORM === "iOS"
-  ? "/ios/Podfile"
-  : REACT_NATIVE_MINOR_VERSION >= 71
-  ? process.env.E2E_APP_PATH + "/android/gradle.properties"
-  : process.env.E2E_APP_PATH + "/android/app/build.gradle";
+const path =
+  process.env.E2E_APP_PATH +
+  (process.env.E2E_PLATFORM === "iOS"
+    ? "/ios/Podfile"
+    : REACT_NATIVE_MINOR_VERSION >= 71
+    ? "/android/gradle.properties"
+    : "/android/app/build.gradle");
 
 let text = fs.readFileSync(path, "utf-8");
 
