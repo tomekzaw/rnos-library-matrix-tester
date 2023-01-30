@@ -27,7 +27,7 @@ yarn add --dev prettier
 
 # install TypeScript (https://reactnative.dev/docs/typescript)
 if [ $REACT_NATIVE_MINOR_VERSION -le 70 ]; then
-    yarn add --dev @tsconfig/react-native @types/jest @types/react @types/react-test-renderer typescript
+    yarn add --dev @tsconfig/react-native @types/jest @types/react @types/react-test-renderer @types/react-native typescript
 fi
 
 # install E2E testing tools
