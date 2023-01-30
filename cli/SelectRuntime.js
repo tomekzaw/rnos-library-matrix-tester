@@ -17,11 +17,14 @@ const path =
 let text = fs.readFileSync(path, "utf-8");
 
 if (process.env.E2E_PLATFORM === "iOS") {
-  text = text.replace(/:hermesEnabled => (.*)/, ":hermesEnabled => " + value);
+  text = text.replace(
+    /:hermes_enabled => (.*)/,
+    `:hermes_enabled => ${value},`
+  );
 } else if (REACT_NATIVE_MINOR_VERSION >= 71) {
-  text = text.replace(/hermesEnabled=(false|true)/, "hermesEnabled=" + value);
+  text = text.replace(/hermesEnabled=(false|true)/, `hermesEnabled=${value}`);
 } else {
-  text = text.replace(/enableHermes: (false|true)/, "enableHermes: " + value);
+  text = text.replace(/enableHermes: (false|true)/, `enableHermes: ${value}`);
 }
 
 fs.writeFileSync(path, text);
