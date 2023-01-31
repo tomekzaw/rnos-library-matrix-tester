@@ -36,7 +36,7 @@ git push --set-upstream origin @tomekzaw/test-reanimated-3.0.0-rc.11
 
 ## Project structure
 
-- `.github/workflows/ci.yml` &ndash; GitHub Actions workflow file unified for Android and iOS. Feel free to adapt the configuration matrix to your needs by modifying `jobs.E2E.strategy.matrix`. This file should directly run bash scripts from the `cli/` directory without any arguments. Don't forget to set reasonable timeouts.
+- `.github/workflows/e2e.yml` &ndash; GitHub Actions workflow file unified for Android and iOS. Feel free to adapt the configuration matrix to your needs by modifying `jobs.E2E.strategy.matrix`. This file should directly run bash scripts from the `cli/` directory without any arguments. Don't forget to set reasonable timeouts.
 
 - `app/` &ndash; this directory contains files that will be copied into the freshly created app.
   - `__tests__/e2e.test.ts` &ndash; the source code of E2E tests including setup and teardown of the client
