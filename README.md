@@ -58,7 +58,7 @@ git push --set-upstream origin @tomekzaw/test-reanimated-3.0.0-rc.11
 - [ ] Rewrite Bash scripts to Python
 - [ ] Run matrix tests locally using CLI
 
-# Copyright and License
+## Copyright and License
 
 Copyright 2023, [Software Mansion](https://swmansion.com/?utm_source=git&utm_medium=readme&utm_campaign=rnos-library-matrix-tester)
 
